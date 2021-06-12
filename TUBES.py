@@ -1,14 +1,16 @@
 import pandas as pd
 import os
+import sys
 import matplotlib.pyplot as plt
 df = pd.read_csv('covid_19_indonesia_time_series_all.csv')
 
 def menu():
     clear_screen()
     print("APLIKASI CEK DATA COVID-19 INDONESIA JANUARI 2021")
-    print("1. CEK KASUS COVID-19 (filter(lambda))")
-    print("2. CEK URUTAN KASUS COVID-19 (sorted(lambda))")
-    print("3. CEK GRAFIK KASUS COVID-19 (map(lambda))")
+    print("1. CEK KASUS COVID-19")
+    print("2. CEK URUTAN KASUS COVID-19")
+    print("3. CEK GRAFIK KASUS COVID-19")
+    print("4. KELUAR PROGRAM")
     selected_menu = input("PILIH MENU : ")
     if selected_menu == "1":
         cari_data()
@@ -16,6 +18,9 @@ def menu():
         urutkan_data()
     elif selected_menu == "3":
         grafik_data()
+        exit()
+    elif selected_menu == "4":
+        print("keluar program ")
         exit()
     else:
         print("PILIHAN MENU SALAH!")
@@ -29,25 +34,40 @@ def kembali_ke_menu():
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def exit():
+    sys.exit(0)
+
 def cari_data():
     clear_screen()
     print("CEK KASUS BERDASARKAN :")
     print("1. TANGGAL (JANUARI)")
     print("2. PROVINSI")
     sub_menu = input("PILIH MENU : ")
-    pilihan = input("MASUKAN DATA : ")
     if sub_menu == "1":
-        kolom = df.groupby("Date").TotalCases.sum().reset_index()
-        dict = kolom.to_dict('Records')
-        fungsi = list(filter(lambda x: x['Date'] == int(pilihan), dict))
-        hasil = pd.DataFrame.from_dict(fungsi)
-        print(hasil)
+        try:
+            waktu_tanggal = int(input("MASUKAN Tanggal : "))
+            if waktu_tanggal in range(1,21):
+                kolom = df.groupby("Date").TotalCases.sum().reset_index()
+                dict = kolom.to_dict('Records')
+                fungsi = list(filter(lambda x: x['Date'] == int(waktu_tanggal), dict))
+                hasil = pd.DataFrame.from_dict(fungsi)
+                print(hasil)
+            else:
+                print('DATA BELUM TERSEDIA')
+        except ValueError:
+            print("INPUTAN SALAH")
+            kembali_ke_menu()
     elif sub_menu == "2":
+        tempat_provinsi = input("MASUKKAN NAMA PROVINSI:")
         lokasi = df.groupby("Location").TotalCases.max().reset_index()
         dict = lokasi.to_dict('Records')
-        fungsi = list(filter(lambda x: x['Location'] == pilihan, dict))
+        fungsi = list(filter(lambda x: x['Location'] == tempat_provinsi.capitalize(), dict))
         hasil = pd.DataFrame.from_dict(fungsi)
         print(hasil)
+    else:
+        print("INPUTAN SALAH")
+        kembali_ke_menu()
+
     kembali_ke_menu()
 
 #---------------------------------------------------------------------------------------------
@@ -76,6 +96,9 @@ def urutkan_data():
         fungsi = list(sorted(dict, key=lambda x: x['TotalCases'], reverse=True))
         hasil = pd.DataFrame.from_dict(fungsi)
         print(hasil)
+    else:
+        print("INPUTAN SALAH")
+        kembali_ke_menu()
     kembali_ke_menu()
 
 #-----------------------------------------------------------------------------------------
@@ -111,6 +134,9 @@ def grafik_data():
         ax.set_xticks([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21])
         plt.plot(date, kasus)
         plt.show()
+    else:
+        print("INPUTAN SALAH!")
+        kembali_ke_menu()
     kembali_ke_menu()
 
 if __name__ == "__main__":
